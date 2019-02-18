@@ -17,8 +17,16 @@ näidatakse statistikat (punkti summa, püütud puuviljade arv, mängu aeg jms).
 *Lisafunktsionaalsus (kui meil on aega):*
 *  Mängu erinevad raskused (nt. mängu välja erinevad suurused või puuviljade langevuse kiirused)
 *  Taevast kukkuvad ka pommid (püüdmisel vöetakse ära kõik elud ja on kohe Game Over)
-*  Scoreboard
+*  Scoreboard, game settings
 *  jne...
+
+***Ajakava (projektipraktikumide kaupa):***
+* [ ]  Koostada projektiplaan - 2 praktikum
+* [ ]  Teha mänguväli (timer-iga, taustaga jne) - 3 praktikum
+* [ ]  Teha puuviljade objektide genereerimine ning nende objektidega seotud käitumise loogika - 4 praktikum
+* [ ]  Ago käitumise loogika - 5 praktikum
+* [ ]  Mängu esimenüü, mängu tsükli koostamine (kogu mängu protsessi koostamine - välja genereerimisest mängu statistikani) - 6 praktikum
+* [ ]  Lisafunktsionaalsuse realiseerimine, testid jne - 7 praktikum
 
 ***Võimalikud kasutatavad tehnoloogiad:***
 libGDX või JavaFX
