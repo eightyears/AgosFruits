@@ -21,7 +21,7 @@ näidatakse statistikat (punkti summa, püütud puuviljade arv, mängu aeg jms).
 *  jne...
 
 ***Ajakava (projektipraktikumide kaupa):***
-* [ ]  Koostada projektiplaan - 2 praktikum
+* [x]  Koostada projektiplaan - 2 praktikum
 * [ ]  Teha mänguväli (timer-iga, taustaga jne) - 3 praktikum
 * [ ]  Teha puuviljade objektide genereerimine ning nende objektidega seotud käitumise loogika - 4 praktikum
 * [ ]  Ago käitumise loogika - 5 praktikum
