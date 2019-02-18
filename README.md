@@ -1,4 +1,4 @@
-**Ago's fruit**
+**Ago's Fruits**
 
 ***Mängu idee:***
 Väike Ago tahab korjata nii palju puuvilju kui on võimalik.
