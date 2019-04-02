@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="iti0202-2019-gui:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/iti0202_2019_gui_jar</output-path>
+    <root id="archive" name="iti0202-2019-gui.jar">
+      <element id="module-output" name="iti0202-2019-gui" />
+    </root>
+  </artifact>
+</component>
