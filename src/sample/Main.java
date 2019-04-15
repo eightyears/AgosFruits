@@ -3,14 +3,14 @@ package sample;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -25,12 +25,15 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class Main extends Application {
+    private Stage stage;
 
     private BorderPane root = new BorderPane();
     private Pane gamePane = new Pane();
 
     private final double CANVAS_WIDTH = 800;
     private final double CANVAS_HEIGHT = 450;
+
+    private final Image backgroundImage = new Image("assets/game-background.png");
 
     private int score = 0;
     private double t = 0;
@@ -39,22 +42,53 @@ public class Main extends Application {
     private double cursorX;
 
     private Label scoreLabel = new Label(String.valueOf(score));
-    private Label timeLabel = new Label("0:00");
+    private Label timeLabel = new Label();
+
+    private long startTime;
 
     private Rectangle ago = new Rectangle(100, 100);
+    private int agosLives = 3;
 
     private FruitSample[] fruits
             = {FruitSample.APPLE, FruitSample.BANANA, FruitSample.MELON, FruitSample.PEAR, FruitSample.KIWI};
 
+    private Pane createMenu(Stage stage) {
+        BorderPane menuPane = new BorderPane();
+        menuPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        final ImageView screen_node = new ImageView();
+        screen_node.setImage(backgroundImage);
+        menuPane.getChildren().add(screen_node);
+
+        Label header = new Label("Ago's Fruits");
+        header.setFont(new Font("Arial", 80));
+        header.setTextFill(Color.GREEN);
+
+        Button start = new Button("New Game");
+        Button quit = new Button("Quit");
+        start.setOnAction(e -> {
+            Scene scene = new Scene(createContent());
+            stage.setScene(scene);
+            scene.setOnMouseMoved(event -> cursorX = event.getX());
+        });
+        quit.setOnAction(f -> stage.close());
+        VBox vbox = new VBox(header, start, quit);
+        vbox.setPadding(new Insets(10));
+        vbox.setSpacing(5);
+        vbox.setAlignment(Pos.CENTER);
+        menuPane.setCenter(vbox);
+        return menuPane;
+    }
+
     private Parent createContent() {
-        final Image backgroundImage = new Image("assets/game-background.png");
         final ImageView screen_node = new ImageView();
 
         root.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 
         screen_node.setImage(backgroundImage);
-        //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         root.getChildren().add(screen_node);
+
+        startTime = System.currentTimeMillis();
 
         ago.setFill(new ImagePattern(new Image("assets/ago.png")));
         ago.setTranslateX(CANVAS_WIDTH / 2 - ago.getWidth());
@@ -62,11 +96,15 @@ public class Main extends Application {
         root.getChildren().add(ago);
 
         timeLabel.setFont(new Font("SegoeUI", 18));
+        timeLabel.setMinWidth(50);
         scoreLabel.setFont(new Font("SegoeUI", 18));
+        scoreLabel.setMinWidth(100);
 
-        HBox hbox = new HBox(scoreLabel);
+        Region space = new Region();
+        HBox.setHgrow(space, Priority.ALWAYS);
+
+        HBox hbox = new HBox(scoreLabel, space, timeLabel);
         hbox.setPadding(new Insets(10));
-        hbox.setSpacing(700);
         root.setTop(hbox);
         root.setCenter(gamePane);
 
@@ -103,7 +141,11 @@ public class Main extends Application {
                 f.setCollected(true);
             } else if (f.getTranslateY() > CANVAS_HEIGHT - 2 * f.getHeight()) {
                 System.out.println("missed!");
+                agosLives--;
                 f.setCollected(true);
+                if (agosLives == 0) {
+                    stage.close();
+                }
             }
         });
         gamePane.getChildren().removeIf(f -> {
@@ -113,13 +155,16 @@ public class Main extends Application {
         if (t > 2) {
             t = 0;
         }
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                //timeLabel.setText(String.valueOf());
-            }
-        }, 0, 1000);
+        updateTimer();
+    }
+
+    private void updateTimer() {
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        long elapsedSeconds = elapsedTime / 1000;
+        long secondsDisplay = elapsedSeconds % 60;
+        long elapsedMinutes = elapsedSeconds / 60;
+        String timeString = String.format("%02d:%02d", elapsedMinutes, secondsDisplay);
+        timeLabel.setText(timeString);
     }
 
     private void dropFruit() {
@@ -132,25 +177,13 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Scene scene = new Scene(createContent());
-        /*scene.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case A:
-                    ago.setTranslateX(ago.getTranslateX() - 10);
-                    break;
-                case D:
-                    ago.setTranslateX(ago.getTranslateX() + 10);;
-                    break;
-            }
-        });*/
-        scene.setOnMouseMoved(e -> {
-            cursorX = e.getX();
-        });
-        primaryStage.setTitle("Ago's Fruits");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        stage = primaryStage;
+        Scene menu = new Scene(createMenu(stage));
+        stage.setTitle("Ago's Fruits");
+        stage.setScene(menu);
+        stage.setResizable(false);
+        stage.show();
     }
-
 
     public static void main(String[] args) {
         launch(args);
