@@ -25,7 +25,7 @@ näidatakse statistikat (punkti summa, püütud puuviljade arv, mängu aeg jms).
 * [x]  Teha mänguväli - 3 praktikum
 * [x]  Teha puuviljade objektide genereerimine ning nende objektidega seotud käitumise loogika - 4 praktikum
 * [x]  Ago käitumise loogika - 5 praktikum
-* [ ]  Mängu esimenüü, mängu tsükli koostamine (kogu mängu protsessi koostamine - välja genereerimisest mängu statistikani) - 6 praktikum
+* [x]  Mängu esimenüü, mängu tsükli koostamine (kogu mängu protsessi koostamine - välja genereerimisest mängu statistikani) - 6 praktikum
 * [ ]  Lisafunktsionaalsuse realiseerimine, testid jne - 7 praktikum
 
 ***Võimalikud kasutatavad tehnoloogiad:***
