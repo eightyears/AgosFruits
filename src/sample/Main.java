@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
 public class Main extends Application {
     private Stage stage;
 
-    private BorderPane root = new BorderPane();
-    private Pane gamePane = new Pane();
+    private Pane gamePane;
 
     private final double CANVAS_WIDTH = 800;
     private final double CANVAS_HEIGHT = 450;
@@ -41,13 +40,16 @@ public class Main extends Application {
 
     private double cursorX;
 
-    private Label scoreLabel = new Label(String.valueOf(score));
+    private Label scoreLabel;
     private Label timeLabel = new Label();
 
     private long startTime;
 
     private Rectangle ago = new Rectangle(100, 100);
     private int agosLives = 3;
+
+    private AnimationTimer timer;
+    private String playTime;
 
     private FruitSample[] fruits
             = {FruitSample.APPLE, FruitSample.BANANA, FruitSample.MELON, FruitSample.PEAR, FruitSample.KIWI};
@@ -81,6 +83,7 @@ public class Main extends Application {
     }
 
     private Parent createContent() {
+        BorderPane root = new BorderPane();
         final ImageView screen_node = new ImageView();
 
         root.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -97,6 +100,7 @@ public class Main extends Application {
 
         timeLabel.setFont(new Font("SegoeUI", 18));
         timeLabel.setMinWidth(50);
+        scoreLabel = new Label(String.valueOf(score));
         scoreLabel.setFont(new Font("SegoeUI", 18));
         scoreLabel.setMinWidth(100);
 
@@ -106,9 +110,10 @@ public class Main extends Application {
         HBox hbox = new HBox(scoreLabel, space, timeLabel);
         hbox.setPadding(new Insets(10));
         root.setTop(hbox);
+        gamePane = new Pane();
         root.setCenter(gamePane);
 
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 update();
@@ -125,7 +130,7 @@ public class Main extends Application {
     }
 
     private void update() {
-        t += 0.036;
+        t += 0.056;
         ago.setTranslateX(cursorX);
         if (t > 2) {
             if (Math.random() < 0.5) {
@@ -144,7 +149,9 @@ public class Main extends Application {
                 agosLives--;
                 f.setCollected(true);
                 if (agosLives == 0) {
-                    stage.close();
+                    timer.stop();
+                    Scene scene = new Scene(gameOver());
+                    stage.setScene(scene);
                 }
             }
         });
@@ -163,8 +170,8 @@ public class Main extends Application {
         long elapsedSeconds = elapsedTime / 1000;
         long secondsDisplay = elapsedSeconds % 60;
         long elapsedMinutes = elapsedSeconds / 60;
-        String timeString = String.format("%02d:%02d", elapsedMinutes, secondsDisplay);
-        timeLabel.setText(timeString);
+        playTime = String.format("%02d:%02d", elapsedMinutes, secondsDisplay);
+        timeLabel.setText(playTime);
     }
 
     private void dropFruit() {
@@ -173,6 +180,46 @@ public class Main extends Application {
         fruitId++;
         Fruit f = new Fruit(fruits[randomFruitNumber], fruitId, randomNum, 0);
         gamePane.getChildren().add(f);
+    }
+
+    private Parent gameOver() {
+        BorderPane gameOverPane = new BorderPane();
+        gameOverPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        final ImageView screen_node = new ImageView();
+        screen_node.setImage(backgroundImage);
+        gameOverPane.getChildren().add(screen_node);
+
+        Label header = new Label("Game Over");
+        header.setFont(new Font("Arial", 80));
+        header.setTextFill(Color.RED);
+
+        Label finalScore = new Label("Your score: " + score);
+        Label playedTime = new Label("Total time played: " + playTime);
+        finalScore.setFont(new Font("SegoeUI", 16));
+        playedTime.setFont(new Font("SegoeUI", 16));
+
+        HBox hBox = new HBox(finalScore, playedTime);
+        hBox.setSpacing(25);
+        hBox.setPadding(new Insets(10));
+        hBox.setAlignment(Pos.CENTER);
+
+        Button start = new Button("Play Again");
+        Button quit = new Button("Quit");
+        start.setOnAction(e -> {
+            agosLives = 3;
+            score = 0;
+            Scene scene = new Scene(createContent());
+            stage.setScene(scene);
+            scene.setOnMouseMoved(event -> cursorX = event.getX());
+        });
+        quit.setOnAction(f -> stage.close());
+        VBox vbox = new VBox(header, hBox, start, quit);
+        vbox.setPadding(new Insets(10));
+        vbox.setSpacing(5);
+        vbox.setAlignment(Pos.CENTER);
+        gameOverPane.setCenter(vbox);
+        return gameOverPane;
     }
 
     @Override

@@ -19,7 +19,7 @@ public class Fruit extends Rectangle {
     }
 
     void moveDown() {
-        setTranslateY(getTranslateY() + 2);
+        setTranslateY(getTranslateY() + 5);
     }
 
     public FruitSample getFruitSample() {
