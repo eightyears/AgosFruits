@@ -47,6 +47,8 @@ public class Main extends Application {
 
     private Rectangle ago = new Rectangle(100, 100);
     private int agosLives = 3;
+    private VBox healthBox;
+
 
     private AnimationTimer timer;
     private String playTime;
@@ -108,8 +110,15 @@ public class Main extends Application {
         HBox.setHgrow(space, Priority.ALWAYS);
 
         HBox hbox = new HBox(scoreLabel, space, timeLabel);
+        healthBox = new VBox();
+        for (int i = 0; i < agosLives; i++) {
+            ImageView image = new ImageView(new Image("assets/lifes.png"));
+            healthBox.getChildren().add(image);
+        }
+        healthBox.setSpacing(5);
         hbox.setPadding(new Insets(10));
         root.setTop(hbox);
+        root.setLeft(healthBox);
         gamePane = new Pane();
         root.setCenter(gamePane);
 
@@ -147,6 +156,9 @@ public class Main extends Application {
             } else if (f.getTranslateY() > CANVAS_HEIGHT - 2 * f.getHeight()) {
                 System.out.println("missed!");
                 agosLives--;
+                if (agosLives > 0) {
+                    healthBox.getChildren().remove(agosLives - 1);
+                }
                 f.setCollected(true);
                 if (agosLives == 0) {
                     timer.stop();
