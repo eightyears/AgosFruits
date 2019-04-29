@@ -58,6 +58,7 @@ public class Main extends Application {
             , FruitSample.KIWI, FruitSample.BOMB};
 
     private double fruitDropRate = 0.5;
+    private int dropSpeed = 5;
 
     private Pane createMenu(Stage stage) {
         BorderPane menuPane = new BorderPane();
@@ -150,7 +151,7 @@ public class Main extends Application {
             }
         }
         getFruits().forEach(f -> {
-            f.moveDown();
+            f.moveDown(dropSpeed);
             if (f.getBoundsInParent().intersects(ago.getBoundsInParent())) {
                 if (f.getFruitSample().getName().equals("Bomb")) {
                     f.setCollected(true);
@@ -192,13 +193,19 @@ public class Main extends Application {
         long elapsedMinutes = elapsedSeconds / 60;
         playTime = String.format("%02d:%02d", elapsedMinutes, secondsDisplay);
         timeLabel.setText(playTime);
-        if (elapsedMinutes == 1) fruitDropRate = 0.7;
-        if (elapsedMinutes == 3) fruitDropRate = 0.9;
+        if (secondsDisplay == 20) {
+            fruitDropRate = 0.7;
+            dropSpeed = 7;
+        }
+        if (secondsDisplay == 40) {
+            fruitDropRate = 0.9;
+            dropSpeed = 10;
+        }
     }
 
     private void dropFruit() {
         int randomFruitNumber = new Random().nextInt(fruits.length);
-        int randomNum = ThreadLocalRandom.current().nextInt(100, 701);
+        int randomNum = ThreadLocalRandom.current().nextInt(100, (int) (CANVAS_WIDTH - 100));
         fruitId++;
         Fruit f = new Fruit(fruits[randomFruitNumber], fruitId, randomNum, 0);
         gamePane.getChildren().add(f);
@@ -238,6 +245,7 @@ public class Main extends Application {
             agosLives = 3;
             score = 0;
             fruitDropRate = 0.5;
+            dropSpeed = 5;
             Scene scene = new Scene(createContent());
             stage.setScene(scene);
             scene.setOnMouseMoved(event -> cursorX = event.getX());

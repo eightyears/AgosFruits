@@ -18,8 +18,8 @@ public class Fruit extends Rectangle {
         this.setFill(new ImagePattern(fruit.getImage()));
     }
 
-    void moveDown() {
-        setTranslateY(getTranslateY() + 5);
+    void moveDown(int dropSpeed) {
+        setTranslateY(getTranslateY() + dropSpeed);
     }
 
     public FruitSample getFruitSample() {
