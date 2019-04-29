@@ -45,7 +45,7 @@ public class Main extends Application {
 
     private long startTime;
 
-    private Rectangle ago = new Rectangle(100, 100);
+    private Rectangle ago = new Rectangle(75, 100);
     private int agosLives = 3;
     private VBox healthBox;
 
@@ -54,7 +54,10 @@ public class Main extends Application {
     private String playTime;
 
     private FruitSample[] fruits
-            = {FruitSample.APPLE, FruitSample.BANANA, FruitSample.MELON, FruitSample.PEAR, FruitSample.KIWI};
+            = {FruitSample.APPLE, FruitSample.BANANA, FruitSample.MELON, FruitSample.PEAR
+            , FruitSample.KIWI, FruitSample.BOMB};
+
+    private double fruitDropRate = 0.5;
 
     private Pane createMenu(Stage stage) {
         BorderPane menuPane = new BorderPane();
@@ -140,20 +143,27 @@ public class Main extends Application {
 
     private void update() {
         t += 0.056;
-        ago.setTranslateX(cursorX);
+        ago.setTranslateX(cursorX - ago.getWidth() / 2);
         if (t > 2) {
-            if (Math.random() < 0.5) {
+            if (Math.random() < fruitDropRate) {
                 dropFruit();
             }
         }
         getFruits().forEach(f -> {
             f.moveDown();
             if (f.getBoundsInParent().intersects(ago.getBoundsInParent())) {
-                score += f.getFruitSample().getScore();
-                scoreLabel.setText(String.valueOf(score));
-                System.out.println(score);
-                f.setCollected(true);
-            } else if (f.getTranslateY() > CANVAS_HEIGHT - 2 * f.getHeight()) {
+                if (f.getFruitSample().getName().equals("Bomb")) {
+                    f.setCollected(true);
+                    System.out.println("Kabooom!");
+                    endGame();
+                }else {
+                    score += f.getFruitSample().getScore();
+                    scoreLabel.setText(String.valueOf(score));
+                    //System.out.println(score);
+                    f.setCollected(true);
+                }
+            } else if (f.getTranslateY() > CANVAS_HEIGHT - 2 * f.getHeight()
+                    && !f.getFruitSample().getName().equals("Bomb")) {
                 System.out.println("missed!");
                 agosLives--;
                 if (agosLives > 0) {
@@ -161,9 +171,7 @@ public class Main extends Application {
                 }
                 f.setCollected(true);
                 if (agosLives == 0) {
-                    timer.stop();
-                    Scene scene = new Scene(gameOver());
-                    stage.setScene(scene);
+                    endGame();
                 }
             }
         });
@@ -184,6 +192,8 @@ public class Main extends Application {
         long elapsedMinutes = elapsedSeconds / 60;
         playTime = String.format("%02d:%02d", elapsedMinutes, secondsDisplay);
         timeLabel.setText(playTime);
+        if (elapsedMinutes == 1) fruitDropRate = 0.7;
+        if (elapsedMinutes == 3) fruitDropRate = 0.9;
     }
 
     private void dropFruit() {
@@ -192,6 +202,12 @@ public class Main extends Application {
         fruitId++;
         Fruit f = new Fruit(fruits[randomFruitNumber], fruitId, randomNum, 0);
         gamePane.getChildren().add(f);
+    }
+
+    private void endGame() {
+        timer.stop();
+        Scene scene = new Scene(gameOver());
+        stage.setScene(scene);
     }
 
     private Parent gameOver() {
@@ -221,6 +237,7 @@ public class Main extends Application {
         start.setOnAction(e -> {
             agosLives = 3;
             score = 0;
+            fruitDropRate = 0.5;
             Scene scene = new Scene(createContent());
             stage.setScene(scene);
             scene.setOnMouseMoved(event -> cursorX = event.getX());

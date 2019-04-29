@@ -11,6 +11,8 @@ public final class FruitSample extends Rectangle {
     public static final FruitSample PEAR = new FruitSample("Pear", new Image("assets/pear.png"), 30, 40, 10);
     public static final FruitSample KIWI = new FruitSample("Kiwi", new Image("assets/kiwi.png"), 40, 40, 25);
 
+    public static final FruitSample BOMB = new FruitSample("Bomb", new Image("assets/bomb.png"), 40, 40, 0);
+
     private String name;
     private Image image;
     private int score;
@@ -20,6 +22,10 @@ public final class FruitSample extends Rectangle {
         this.name = name;
         this.image = image;
         this.score = score;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Image getImage() {
