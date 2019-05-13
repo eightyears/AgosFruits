@@ -10,7 +10,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -19,8 +24,6 @@ import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -54,8 +57,8 @@ public class Main extends Application {
     private String playTime;
 
     private FruitSample[] fruits
-            = {FruitSample.APPLE, FruitSample.BANANA, FruitSample.MELON, FruitSample.PEAR
-            , FruitSample.KIWI, FruitSample.BOMB};
+            = {FruitSample.APPLE, FruitSample.BANANA, FruitSample.MELON, FruitSample.PEAR,
+            FruitSample.KIWI, FruitSample.BOMB};
 
     private double fruitDropRate = 0.5;
     private int dropSpeed = 5;
@@ -82,9 +85,9 @@ public class Main extends Application {
         quit.setOnAction(f -> stage.close());
         VBox vbox = new VBox(header, start, quit);
         vbox.setPadding(new Insets(10));
+        menuPane.setCenter(vbox);
         vbox.setSpacing(5);
         vbox.setAlignment(Pos.CENTER);
-        menuPane.setCenter(vbox);
         return menuPane;
     }
 
@@ -160,7 +163,7 @@ public class Main extends Application {
                 }else {
                     score += f.getFruitSample().getScore();
                     scoreLabel.setText(String.valueOf(score));
-                    //System.out.println(score);
+                    System.out.println(score);
                     f.setCollected(true);
                 }
             } else if (f.getTranslateY() > CANVAS_HEIGHT - 2 * f.getHeight()
@@ -221,13 +224,13 @@ public class Main extends Application {
         BorderPane gameOverPane = new BorderPane();
         gameOverPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 
-        final ImageView screen_node = new ImageView();
-        screen_node.setImage(backgroundImage);
-        gameOverPane.getChildren().add(screen_node);
-
         Label header = new Label("Game Over");
         header.setFont(new Font("Arial", 80));
         header.setTextFill(Color.RED);
+
+        final ImageView screen_node = new ImageView();
+        screen_node.setImage(backgroundImage);
+        gameOverPane.getChildren().add(screen_node);
 
         Label finalScore = new Label("Your score: " + score);
         Label playedTime = new Label("Total time played: " + playTime);
