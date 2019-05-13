@@ -13,8 +13,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -38,12 +36,14 @@ public class Main extends Application {
     private final Image backgroundImage = new Image("assets/game-background.png");
 
     private int score = 0;
+    private int currentLevel = 1;
     private double t = 0;
     private int fruitId = 0;
 
     private double cursorX;
 
     private Label scoreLabel;
+    private Label levelLabel;
     private Label timeLabel = new Label();
 
     private long startTime;
@@ -62,6 +62,8 @@ public class Main extends Application {
 
     private double fruitDropRate = 0.5;
     private int dropSpeed = 5;
+
+    private boolean levelUp = true;
 
     private Pane createMenu(Stage stage) {
         BorderPane menuPane = new BorderPane();
@@ -112,11 +114,11 @@ public class Main extends Application {
         scoreLabel = new Label(String.valueOf(score));
         scoreLabel.setFont(new Font("SegoeUI", 18));
         scoreLabel.setMinWidth(100);
+        levelLabel = new Label("Level " + currentLevel);
+        levelLabel.setFont(new Font("SegoeUI", 18));
 
-        Region space = new Region();
-        HBox.setHgrow(space, Priority.ALWAYS);
-
-        HBox hbox = new HBox(scoreLabel, space, timeLabel);
+        HBox hbox = new HBox(scoreLabel, levelLabel, timeLabel);
+        hbox.setSpacing(250);
         healthBox = new VBox();
         for (int i = 0; i < agosLives; i++) {
             ImageView image = new ImageView(new Image("assets/lifes.png"));
@@ -196,13 +198,15 @@ public class Main extends Application {
         long elapsedMinutes = elapsedSeconds / 60;
         playTime = String.format("%02d:%02d", elapsedMinutes, secondsDisplay);
         timeLabel.setText(playTime);
-        if (secondsDisplay == 20) {
-            fruitDropRate = 0.7;
-            dropSpeed = 7;
+        if (!levelUp && elapsedSeconds % 21 == 0) {
+            levelUp = true;
         }
-        if (secondsDisplay == 40) {
-            fruitDropRate = 0.9;
-            dropSpeed = 10;
+        if (secondsDisplay % 20 == 0 && elapsedSeconds > 0 && levelUp) {
+            currentLevel++;
+            levelLabel.setText("Level " + currentLevel);
+            fruitDropRate += 0.2;
+            dropSpeed += 2;
+            levelUp = false;
         }
     }
 
@@ -233,11 +237,13 @@ public class Main extends Application {
         gameOverPane.getChildren().add(screen_node);
 
         Label finalScore = new Label("Your score: " + score);
+        Label maximumLevel = new Label("Maximum level: " + currentLevel);
         Label playedTime = new Label("Total time played: " + playTime);
         finalScore.setFont(new Font("SegoeUI", 16));
+        maximumLevel.setFont(new Font("SegoeUI", 16));
         playedTime.setFont(new Font("SegoeUI", 16));
 
-        HBox hBox = new HBox(finalScore, playedTime);
+        HBox hBox = new HBox(finalScore, maximumLevel, playedTime);
         hBox.setSpacing(25);
         hBox.setPadding(new Insets(10));
         hBox.setAlignment(Pos.CENTER);
@@ -247,6 +253,7 @@ public class Main extends Application {
         start.setOnAction(e -> {
             agosLives = 3;
             score = 0;
+            currentLevel = 1;
             fruitDropRate = 0.5;
             dropSpeed = 5;
             Scene scene = new Scene(createContent());
