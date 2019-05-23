@@ -8,17 +8,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import leaderboard.LeaderboardManager;
+import leaderboard.Score;
 
 import java.util.List;
 import java.util.Random;
@@ -34,11 +34,14 @@ public class Main extends Application {
     private final double CANVAS_HEIGHT = 450;
 
     private final Image backgroundImage = new Image("assets/game-background.png");
+    private final Image tutorialImage = new Image("assets/Tutorial.png");
 
     private int score = 0;
     private int currentLevel = 1;
     private double t = 0;
     private int fruitId = 0;
+
+    private LeaderboardManager lm = new LeaderboardManager();
 
     private double cursorX;
 
@@ -52,6 +55,8 @@ public class Main extends Application {
     private int agosLives = 3;
     private VBox healthBox;
 
+    private String playerName = "";
+    private static final int NAME_LIMIT = 14;
 
     private AnimationTimer timer;
     private String playTime;
@@ -77,20 +82,144 @@ public class Main extends Application {
         header.setFont(new Font("Arial", 80));
         header.setTextFill(Color.GREEN);
 
-        Button start = new Button("New Game");
+        Button start = new Button("Play");
+        Button highscores = new Button("High Scores");
+        Button tutorial = new Button("Tutorial");
         Button quit = new Button("Quit");
         start.setOnAction(e -> {
-            Scene scene = new Scene(createContent());
+            Scene scene = new Scene(askPlayerName());
             stage.setScene(scene);
-            scene.setOnMouseMoved(event -> cursorX = event.getX());
+        });
+        highscores.setOnAction(h -> {
+            Scene scene = new Scene(showLeaderboard());
+            stage.setScene(scene);
+        });
+        tutorial.setOnAction(e -> {
+            Scene scene = new Scene(createTutorial());
+            stage.setScene(scene);
         });
         quit.setOnAction(f -> stage.close());
-        VBox vbox = new VBox(header, start, quit);
+        VBox vbox = new VBox(header, start, highscores, tutorial, quit);
         vbox.setPadding(new Insets(10));
         menuPane.setCenter(vbox);
         vbox.setSpacing(5);
         vbox.setAlignment(Pos.CENTER);
         return menuPane;
+    }
+
+    private Parent askPlayerName() {
+        BorderPane pane = new BorderPane();
+        pane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        final ImageView screen_node = new ImageView();
+        screen_node.setImage(backgroundImage);
+        pane.getChildren().add(screen_node);
+
+        Label askName = new Label("Enter your name!");
+        TextField textField = new TextField(playerName);
+        textField.lengthProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.intValue() > oldValue.intValue()) {
+                if (textField.getText().length() >= NAME_LIMIT) {
+                    textField.setText(textField.getText().substring(0, NAME_LIMIT));
+                }
+            }
+        });
+        textField.setAlignment(Pos.CENTER);
+        textField.setPrefWidth(120);
+        HBox hb = new HBox(textField);
+        hb.setAlignment(Pos.CENTER);
+        Button start = new Button("Start");
+        Button back = new Button("Back");
+        start.setOnAction(e -> {
+            if (textField.getText().equals("")) playerName = "Player";
+            else playerName = textField.getText();
+            if (agosLives != 3) {
+                agosLives = 3;
+                score = 0;
+                currentLevel = 1;
+                fruitDropRate = 0.5;
+                dropSpeed = 5;
+            }
+            Scene scene = new Scene(createContent());
+            stage.setScene(scene);
+            scene.setOnMouseMoved(event -> cursorX = event.getX());
+        });
+        back.setOnAction(event -> {
+            Scene scene = new Scene(createMenu(stage));
+            stage.setScene(scene);
+        });
+        VBox vb = new VBox(askName, hb, start, back);
+        vb.setSpacing(10);
+        vb.setAlignment(Pos.CENTER);
+        pane.setCenter(vb);
+        return pane;
+    }
+
+    private Parent showLeaderboard() {
+        BorderPane bPane = new BorderPane();
+        GridPane pane = new GridPane();
+        pane.setPadding(new Insets(0, 0, 0, 120));
+        bPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+        pane.setVgap(10);
+        pane.setHgap(50);
+
+        final ImageView screen_node = new ImageView();
+        screen_node.setImage(backgroundImage);
+        bPane.getChildren().add(screen_node);
+
+        Label leaderboard = new Label("Leaderboard");
+        leaderboard.setFont(new Font("SegoeUI", 28));
+
+        pane.add(new Label("Place"), 0, 0);
+        pane.add(new Label("Player Name"), 1, 0);
+        pane.add(new Label("Score"), 2, 0);
+        pane.add(new Label("Maximum Level"), 3, 0);
+        pane.add(new Label("Played Time"), 4, 0);
+
+        List<Score> highscores = lm.getHighscores();
+        int row = 1;
+        for (Score highscore : highscores) {
+            pane.add(new Label(row + "."), 0, row);
+            pane.add(new Label(highscore.getName()), 1, row);
+            pane.add(new Label(String.valueOf(highscore.getScore())), 2, row);
+            pane.add(new Label(String.valueOf(highscore.getLevel())), 3, row);
+            pane.add(new Label(highscore.getPlayTime()), 4, row);
+            row++;
+        }
+        Button backToMenu = new Button("Back");
+        backToMenu.setOnAction(event -> {
+            Scene scene = new Scene(createMenu(stage));
+            stage.setScene(scene);
+        });
+        pane.getStylesheets().add("sample/styles.css");
+        VBox vBox = new VBox(leaderboard, pane, backToMenu);
+        vBox.setSpacing(10);
+        vBox.setAlignment(Pos.CENTER);
+        bPane.setCenter(vBox);
+        return bPane;
+    }
+
+    private Parent createTutorial() {
+        BorderPane root = new BorderPane();
+        final ImageView screen_node = new ImageView();
+
+        screen_node.setImage(tutorialImage);
+        root.getChildren().add(screen_node);
+
+        root.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+        Button quitTutorial = new Button("Exit");
+        quitTutorial.setOnAction(e-> {
+            Scene scene = new Scene (createMenu(stage));
+            stage.setScene(scene);
+
+        });
+        VBox vbox = new VBox(quitTutorial);
+        vbox.setPadding(new Insets(1));
+        root.setCenter(vbox);
+        vbox.setSpacing(5);
+        vbox.setAlignment(Pos.BOTTOM_RIGHT);
+
+        return root;
     }
 
     private Parent createContent() {
@@ -220,6 +349,7 @@ public class Main extends Application {
 
     private void endGame() {
         timer.stop();
+        lm.addScore(playerName, score, currentLevel, playTime);
         Scene scene = new Scene(gameOver());
         stage.setScene(scene);
     }
@@ -249,19 +379,18 @@ public class Main extends Application {
         hBox.setAlignment(Pos.CENTER);
 
         Button start = new Button("Play Again");
+        Button mainMenu = new Button("Main Menu");
         Button quit = new Button("Quit");
         start.setOnAction(e -> {
-            agosLives = 3;
-            score = 0;
-            currentLevel = 1;
-            fruitDropRate = 0.5;
-            dropSpeed = 5;
-            Scene scene = new Scene(createContent());
+            Scene scene = new Scene(askPlayerName());
             stage.setScene(scene);
-            scene.setOnMouseMoved(event -> cursorX = event.getX());
+        });
+        mainMenu.setOnAction(event -> {
+            Scene scene = new Scene(createMenu(stage));
+            stage.setScene(scene);
         });
         quit.setOnAction(f -> stage.close());
-        VBox vbox = new VBox(header, hBox, start, quit);
+        VBox vbox = new VBox(header, hBox, start, mainMenu, quit);
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(5);
         vbox.setAlignment(Pos.CENTER);
