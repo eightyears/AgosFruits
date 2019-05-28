@@ -1,0 +1,24 @@
+.label {
+    -fx-font: bold 16px "Arial";
+}
+
+.button {
+    -fx-background-color: #0a1;
+    -fx-font: bold 14px "Arial";
+    -fx-text-fill: white;
+    -fx-pref-width: 120px;
+    -fx-background-radius: 10;
+}
+
+.button:hover {
+    -fx-background-color: #0c3;
+}
+
+#sound {
+    -fx-background-color: lightblue;
+    -fx-pref-width: 48px;
+}
+
+#sound:hover {
+    -fx-background-color: #0c3;
+}

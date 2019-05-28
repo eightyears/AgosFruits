@@ -12,6 +12,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -20,6 +22,7 @@ import javafx.stage.Stage;
 import leaderboard.LeaderboardManager;
 import leaderboard.Score;
 
+import java.io.File;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -33,8 +36,16 @@ public class Main extends Application {
     private final double CANVAS_WIDTH = 800;
     private final double CANVAS_HEIGHT = 450;
 
-    private final Image backgroundImage = new Image("assets/game-background.png");
-    private final Image tutorialImage = new Image("assets/Tutorial.png");
+    private final Image backgroundImage = new Image("assets/images/game-background.png");
+    private final Image tutorialImage = new Image("assets/images/Tutorial.png");
+
+    private final Media tickSound = new Media(new File("src/assets/sounds/tick.mp3").toURI().toString());
+    private final Media fruitSound = new Media(new File("src/assets/sounds/fruity.mp3").toURI().toString());
+    private final Media bombSound = new Media(new File("src/assets/sounds/bomb.mp3").toURI().toString());
+
+    private MediaPlayer tickPlayer = new MediaPlayer(tickSound);
+    private MediaPlayer fruitPlayer = new MediaPlayer(fruitSound);
+    private MediaPlayer bombPlayer = new MediaPlayer(bombSound);
 
     private int score = 0;
     private int currentLevel = 1;
@@ -79,31 +90,43 @@ public class Main extends Application {
         menuPane.getChildren().add(screen_node);
 
         Label header = new Label("Ago's Fruits");
-        header.setFont(new Font("Arial", 80));
+        header.setStyle("-fx-font-size: 24px");
         header.setTextFill(Color.GREEN);
 
         Button start = new Button("Play");
         Button highscores = new Button("High Scores");
         Button tutorial = new Button("Tutorial");
         Button quit = new Button("Quit");
+        Button sound = addMuteButton();
+        sound.setId("sound");
+        VBox box = new VBox(sound);
+        box.setAlignment(Pos.TOP_RIGHT);
+        menuPane.setTop(box);
         start.setOnAction(e -> {
+            play(tickPlayer);
             Scene scene = new Scene(askPlayerName());
             stage.setScene(scene);
         });
         highscores.setOnAction(h -> {
+            play(tickPlayer);
             Scene scene = new Scene(showLeaderboard());
             stage.setScene(scene);
         });
         tutorial.setOnAction(e -> {
+            play(tickPlayer);
             Scene scene = new Scene(createTutorial());
             stage.setScene(scene);
         });
-        quit.setOnAction(f -> stage.close());
+        quit.setOnAction(f -> {
+            play(tickPlayer);
+            stage.close();
+        });
         VBox vbox = new VBox(header, start, highscores, tutorial, quit);
         vbox.setPadding(new Insets(10));
         menuPane.setCenter(vbox);
         vbox.setSpacing(5);
         vbox.setAlignment(Pos.CENTER);
+        menuPane.getStylesheets().add("sample/styles.css");
         return menuPane;
     }
 
@@ -131,6 +154,7 @@ public class Main extends Application {
         Button start = new Button("Start");
         Button back = new Button("Back");
         start.setOnAction(e -> {
+            play(tickPlayer);
             if (textField.getText().equals("")) playerName = "Player";
             else playerName = textField.getText();
             if (agosLives != 3) {
@@ -145,6 +169,7 @@ public class Main extends Application {
             scene.setOnMouseMoved(event -> cursorX = event.getX());
         });
         back.setOnAction(event -> {
+            play(tickPlayer);
             Scene scene = new Scene(createMenu(stage));
             stage.setScene(scene);
         });
@@ -152,6 +177,7 @@ public class Main extends Application {
         vb.setSpacing(10);
         vb.setAlignment(Pos.CENTER);
         pane.setCenter(vb);
+        pane.getStylesheets().add("sample/styles.css");
         return pane;
     }
 
@@ -168,7 +194,8 @@ public class Main extends Application {
         bPane.getChildren().add(screen_node);
 
         Label leaderboard = new Label("Leaderboard");
-        leaderboard.setFont(new Font("SegoeUI", 28));
+        leaderboard.setStyle("-fx-font-size: 24px");
+        leaderboard.setTextFill(Color.GREEN);
 
         pane.add(new Label("Place"), 0, 0);
         pane.add(new Label("Player Name"), 1, 0);
@@ -188,6 +215,7 @@ public class Main extends Application {
         }
         Button backToMenu = new Button("Back");
         backToMenu.setOnAction(event -> {
+            play(tickPlayer);
             Scene scene = new Scene(createMenu(stage));
             stage.setScene(scene);
         });
@@ -196,6 +224,7 @@ public class Main extends Application {
         vBox.setSpacing(10);
         vBox.setAlignment(Pos.CENTER);
         bPane.setCenter(vBox);
+        bPane.getStylesheets().add("sample/styles.css");
         return bPane;
     }
 
@@ -209,6 +238,7 @@ public class Main extends Application {
         root.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
         Button quitTutorial = new Button("Exit");
         quitTutorial.setOnAction(e-> {
+            play(tickPlayer);
             Scene scene = new Scene (createMenu(stage));
             stage.setScene(scene);
 
@@ -218,7 +248,7 @@ public class Main extends Application {
         root.setCenter(vbox);
         vbox.setSpacing(5);
         vbox.setAlignment(Pos.BOTTOM_RIGHT);
-
+        root.getStylesheets().add("sample/styles.css");
         return root;
     }
 
@@ -233,7 +263,7 @@ public class Main extends Application {
 
         startTime = System.currentTimeMillis();
 
-        ago.setFill(new ImagePattern(new Image("assets/ago.png")));
+        ago.setFill(new ImagePattern(new Image("assets/images/ago.png")));
         ago.setTranslateX(CANVAS_WIDTH / 2 - ago.getWidth());
         ago.setTranslateY(CANVAS_HEIGHT - ago.getHeight());
         root.getChildren().add(ago);
@@ -250,7 +280,7 @@ public class Main extends Application {
         hbox.setSpacing(250);
         healthBox = new VBox();
         for (int i = 0; i < agosLives; i++) {
-            ImageView image = new ImageView(new Image("assets/lifes.png"));
+            ImageView image = new ImageView(new Image("assets/images/lifes.png"));
             healthBox.getChildren().add(image);
         }
         healthBox.setSpacing(5);
@@ -288,14 +318,17 @@ public class Main extends Application {
             f.moveDown(dropSpeed);
             if (f.getBoundsInParent().intersects(ago.getBoundsInParent())) {
                 if (f.getFruitSample().getName().equals("Bomb")) {
-                    f.setCollected(true);
+                    play(bombPlayer);
+                    f.setCollected();
                     System.out.println("Kabooom!");
+                    agosLives = 0;
                     endGame();
                 }else {
+                    play(fruitPlayer);
                     score += f.getFruitSample().getScore();
                     scoreLabel.setText(String.valueOf(score));
                     System.out.println(score);
-                    f.setCollected(true);
+                    f.setCollected();
                 }
             } else if (f.getTranslateY() > CANVAS_HEIGHT - 2 * f.getHeight()
                     && !f.getFruitSample().getName().equals("Bomb")) {
@@ -304,7 +337,7 @@ public class Main extends Application {
                 if (agosLives > 0) {
                     healthBox.getChildren().remove(agosLives - 1);
                 }
-                f.setCollected(true);
+                f.setCollected();
                 if (agosLives == 0) {
                     endGame();
                 }
@@ -356,10 +389,11 @@ public class Main extends Application {
 
     private Parent gameOver() {
         BorderPane gameOverPane = new BorderPane();
+        gameOverPane.getStylesheets().add("sample/styles.css");
         gameOverPane.setPrefSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 
         Label header = new Label("Game Over");
-        header.setFont(new Font("Arial", 80));
+        header.setStyle("-fx-font-size: 24px");
         header.setTextFill(Color.RED);
 
         final ImageView screen_node = new ImageView();
@@ -369,9 +403,6 @@ public class Main extends Application {
         Label finalScore = new Label("Your score: " + score);
         Label maximumLevel = new Label("Maximum level: " + currentLevel);
         Label playedTime = new Label("Total time played: " + playTime);
-        finalScore.setFont(new Font("SegoeUI", 16));
-        maximumLevel.setFont(new Font("SegoeUI", 16));
-        playedTime.setFont(new Font("SegoeUI", 16));
 
         HBox hBox = new HBox(finalScore, maximumLevel, playedTime);
         hBox.setSpacing(25);
@@ -382,20 +413,60 @@ public class Main extends Application {
         Button mainMenu = new Button("Main Menu");
         Button quit = new Button("Quit");
         start.setOnAction(e -> {
+            play(tickPlayer);
             Scene scene = new Scene(askPlayerName());
             stage.setScene(scene);
         });
         mainMenu.setOnAction(event -> {
+            play(tickPlayer);
             Scene scene = new Scene(createMenu(stage));
             stage.setScene(scene);
         });
-        quit.setOnAction(f -> stage.close());
+        quit.setOnAction(f -> {
+            play(tickPlayer);
+            stage.close();
+        });
         VBox vbox = new VBox(header, hBox, start, mainMenu, quit);
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(5);
         vbox.setAlignment(Pos.CENTER);
         gameOverPane.setCenter(vbox);
         return gameOverPane;
+    }
+
+    private void play(MediaPlayer player) {
+        if (player != null) {
+            player.stop();
+            player.play();
+        }
+    }
+
+    private Button addMuteButton() {
+        Button soundButton = new Button();
+        Image mute = new Image("assets/images/sound.png");
+        Image unmute = new Image("assets/images/nosound.png");
+        if (!tickPlayer.isMute()) {
+            soundButton.setGraphic(new ImageView(mute));
+        } else {
+            soundButton.setGraphic(new ImageView(unmute));
+        }
+        soundButton.setPadding(new Insets(5));
+        soundButton.setAlignment(Pos.TOP_RIGHT);
+        soundButton.setOnAction(event -> {
+            if (!tickPlayer.isMute()) {
+                tickPlayer.setMute(true);
+                fruitPlayer.setMute(true);
+                bombPlayer.setMute(true);
+                soundButton.setGraphic(new ImageView(unmute));
+            } else {
+                tickPlayer.setMute(false);
+                fruitPlayer.setMute(false);
+                bombPlayer.setMute(false);
+                play(tickPlayer);
+                soundButton.setGraphic(new ImageView(mute));
+            }
+        });
+        return soundButton;
     }
 
     @Override

@@ -3,13 +3,13 @@ package sample;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 
-public class Fruit extends Rectangle {
+class Fruit extends Rectangle {
 
     private FruitSample fruitSample;
     private int id;
     private boolean collected = false;
 
-    public Fruit(FruitSample fruit, int id, int x, int y) {
+    Fruit(FruitSample fruit, int id, int x, int y) {
         super(fruit.getWidth(), fruit.getHeight());
         fruitSample = fruit;
         this.id = id;
@@ -22,15 +22,19 @@ public class Fruit extends Rectangle {
         setTranslateY(getTranslateY() + dropSpeed);
     }
 
-    public FruitSample getFruitSample() {
+    FruitSample getFruitSample() {
         return fruitSample;
     }
 
-    public boolean isCollected() {
+    boolean isCollected() {
         return collected;
     }
 
-    public void setCollected(boolean collected) {
-        this.collected = collected;
+    void setCollected() {
+        this.collected = true;
+    }
+
+    public int getFruitId() {
+        return id;
     }
 }

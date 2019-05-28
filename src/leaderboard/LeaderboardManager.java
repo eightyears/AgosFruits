@@ -22,7 +22,7 @@ public class LeaderboardManager {
         scores = new ArrayList<>();
     }
 
-    public ArrayList<Score> getScores() {
+    private ArrayList<Score> getScores() {
         loadScoreFile();
         sort();
         return scores;
