@@ -35,5 +35,12 @@ libGDX või JavaFX
 Minimaalne (40p), aga proovime teha normaalne (55p)
 
 
-
+public static int recPoints(String s) {
+        if (s.length() == 0) {
+            return 0;
+        } else if (s.substring(1).startsWith(s.substring(0, 1) + s.substring(0, 1))) {
+            return 1 + recPoints(s.substring(1));
+        } else return recPoints(s.substring(1));
+        
+    }
 
