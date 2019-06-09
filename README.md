@@ -11,13 +11,7 @@ Puuvili on objekt, millel on hulk parameetreid (nt. punkti summa, pilt,
 langemise kiirus jne). Mängu välja all pool liigub väike Ago, kes peab korjama 
 taevast kukkuvad puuviljad. Ta liigub ainult vasakule-paremale.
 Agol on 3 elusid, kui mitte püüda langev puuvili, üks elu võetakse ära.
-public static int recPoints(String s) {
-        if (s.length() == 0) {
-            return 0;
-        } else if (s.substring(1).startsWith(s.substring(0, 1) + s.substring(0, 1))) {
-            return 1 + recPoints(s.substring(1));
-        } else return recPoints(s.substring(1));
-}Kui elusid on otsas, siis on Game Over. Mängu lõpus
+Kui elusid on otsas, siis on Game Over. Mängu lõpus
 näidatakse statistikat (punkti summa, püütud puuviljade arv, mängu aeg jms).
 
 *Lisafunktsionaalsus (kui meil on aega):*
